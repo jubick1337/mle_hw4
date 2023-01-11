@@ -5,6 +5,9 @@ from pyspark.ml import Pipeline
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.feature import VectorAssembler
+from pyspark.mllib.evaluation import MulticlassMetrics
+from pyspark.sql.types import FloatType
+import pyspark.sql.functions as F
 
 
 class RFModel:
@@ -50,6 +53,12 @@ class RFModel:
                                                metricName='f1')
         print(f'Accuracy on test set = {accuracy.evaluate(test_prediction)}')
         print(f'F1 on test set = {f1.evaluate(test_prediction)}')
+        cm = MulticlassMetrics(test_prediction.select(['prediction', 'cluster']).withColumn('cluster',
+                                                                                            F.col('cluster').cast(
+                                                                                                FloatType())).orderBy(
+            'prediction').select(['prediction', 'cluster']).rdd.map(tuple))
+        print('Confusion matrix:')
+        print(cm.confusionMatrix().toArray())
 
 
 if __name__ == '__main__':

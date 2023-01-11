@@ -2,9 +2,12 @@ import argparse
 
 from pyspark import SparkContext, SparkConf, SQLContext
 from pyspark.ml import Pipeline
-from pyspark.ml.classification import RandomForestClassifier, LogisticRegression
+from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.feature import VectorAssembler
+from pyspark.mllib.evaluation import MulticlassMetrics
+from pyspark.sql.types import FloatType
+import pyspark.sql.functions as F
 
 
 class RegressionModel:
@@ -57,6 +60,13 @@ class RegressionModel:
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.show()
+        cm = MulticlassMetrics(test_prediction.select(['prediction', 'cluster']).withColumn('cluster',
+                                                                                            F.col('cluster').cast(
+                                                                                                FloatType())).orderBy(
+            'prediction').select(['prediction', 'cluster']).rdd.map(tuple))
+        print('Confusion matrix:')
+        print(cm.confusionMatrix().toArray())
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
