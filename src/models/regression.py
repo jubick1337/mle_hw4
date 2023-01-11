@@ -51,7 +51,12 @@ class RegressionModel:
                                                metricName='f1')
         print(f'Accuracy on test set = {accuracy.evaluate(test_prediction)}')
         print(f'F1 on test set = {f1.evaluate(test_prediction)}')
-
+        import matplotlib.pyplot as plt
+        plt.plot(model.stages[1].summary.objectiveHistory)
+        plt.title('Loss history')
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss')
+        plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
