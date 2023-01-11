@@ -59,6 +59,15 @@ class RFModel:
             'prediction').select(['prediction', 'cluster']).rdd.map(tuple))
         print('Confusion matrix:')
         print(cm.confusionMatrix().toArray())
+        matching_probabilities = []
+        for i in range(self.train_data.select(['cluster']).distinct().count()):
+            predicted = test_prediction.select('prediction').filter(F.col('prediction') == i).count()
+            actual = test_prediction.select('cluster').filter(F.col('cluster') == i).count()
+            matching_probabilities.append((predicted / actual) if actual != 0 else 0)
+        for i in range(len(matching_probabilities)):
+            print(
+                f'Probability of matching cluster and class for i = {i} = {matching_probabilities[i] / len(matching_probabilities)}')
+
 
 
 if __name__ == '__main__':
